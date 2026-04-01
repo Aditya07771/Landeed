@@ -1,0 +1,214 @@
+
+> land-acquisition-blockchain@1.0.0 build
+> next build
+
+  ▲ Next.js 14.2.5
+  - Environments: .env
+
+   Creating an optimized production build ...
+ ⚠ Compiled with warnings
+
+./node_modules/@metamask/sdk/dist/browser/es/metamask-sdk.js
+Module not found: Can't resolve '@react-native-async-storage/async-storage' in 'D:\Projects\land-acquisition-blockchain\node_modules\@metamask\sdk\dist\browser\es'
+
+Import trace for requested module:
+./node_modules/@metamask/sdk/dist/browser/es/metamask-sdk.js
+./node_modules/@wagmi/connectors/dist/esm/metaMask.js
+./node_modules/@wagmi/connectors/dist/esm/exports/index.js
+./node_modules/wagmi/dist/esm/exports/connectors.js
+./components/landing/CTASection.tsx
+
+./node_modules/@metamask/sdk/dist/browser/es/metamask-sdk.js
+Module not found: Can't resolve '@react-native-async-storage/async-storage' in 'D:\Projects\land-acquisition-blockchain\node_modules\@metamask\sdk\dist\browser\es'
+
+Import trace for requested module:
+./node_modules/@metamask/sdk/dist/browser/es/metamask-sdk.js
+./node_modules/@wagmi/connectors/dist/esm/metaMask.js
+./node_modules/@wagmi/connectors/dist/esm/exports/index.js
+./node_modules/wagmi/dist/esm/exports/connectors.js
+./components/landing/CTASection.tsx
+
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/20) ...
+   Generating static pages (5/20) 
+(node:25796) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Error: projectId is undefined
+    at iZ.construct (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:149:258740)
+    at D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:6010:7738
+    at Array.forEach (<anonymous>)
+    at p.initControllers (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:6010:7713)
+    at new p (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:6010:5481)
+    at iF (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:11034:990)
+    at 71452 (D:\Projects\land-acquisition-blockchain\.next\server\chunks\5597.js:1:1172)
+    at Object.t [as require] (D:\Projects\land-acquisition-blockchain\.next\server\webpack-runtime.js:1:143)
+    at require (D:\Projects\land-acquisition-blockchain\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:16:18490)
+    at I (D:\Projects\land-acquisition-blockchain\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:94362)
+(node:2540) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Error: projectId is undefined
+    at iZ.construct (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:149:258740)
+    at D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:6010:7738
+    at Array.forEach (<anonymous>)
+    at p.initControllers (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:6010:7713)
+    at new p (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:6010:5481)
+    at iF (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:11034:990)
+    at 71452 (D:\Projects\land-acquisition-blockchain\.next\server\chunks\5597.js:1:1172)
+    at Object.t [as require] (D:\Projects\land-acquisition-blockchain\.next\server\webpack-runtime.js:1:143)
+    at require (D:\Projects\land-acquisition-blockchain\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:16:18490)
+    at I (D:\Projects\land-acquisition-blockchain\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:94362)
+(node:2028) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Error: projectId is undefined
+    at iZ.construct (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:149:258740)
+    at D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:6010:7738
+    at Array.forEach (<anonymous>)
+    at p.initControllers (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:6010:7713)
+    at new p (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:6010:5481)
+    at iF (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:11034:990)
+    at 71452 (D:\Projects\land-acquisition-blockchain\.next\server\chunks\5597.js:1:1172)
+    at Object.t [as require] (D:\Projects\land-acquisition-blockchain\.next\server\webpack-runtime.js:1:143)
+    at require (D:\Projects\land-acquisition-blockchain\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:16:18490)
+    at I (D:\Projects\land-acquisition-blockchain\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:94362)
+   Generating static pages (10/20) 
+(node:25148) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Error: projectId is undefined
+    at iZ.construct (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:149:258740)
+    at D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:6010:7738
+    at Array.forEach (<anonymous>)
+    at p.initControllers (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:6010:7713)
+    at new p (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:6010:5481)
+    at iF (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:11034:990)
+    at 71452 (D:\Projects\land-acquisition-blockchain\.next\server\app\_not-found\page.js:1:3964)
+    at Object.t [as require] (D:\Projects\land-acquisition-blockchain\.next\server\webpack-runtime.js:1:143)
+    at require (D:\Projects\land-acquisition-blockchain\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:16:18490)
+    at I (D:\Projects\land-acquisition-blockchain\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:94362)
+(node:22140) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Error: projectId is undefined
+    at iZ.construct (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:149:258740)
+    at D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:6010:7738
+    at Array.forEach (<anonymous>)
+    at p.initControllers (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:6010:7713)
+    at new p (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:6010:5481)
+    at iF (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:11034:990)
+    at 71452 (D:\Projects\land-acquisition-blockchain\.next\server\app\unauthorized\page.js:1:4346)
+    at Object.t [as require] (D:\Projects\land-acquisition-blockchain\.next\server\webpack-runtime.js:1:143)
+    at require (D:\Projects\land-acquisition-blockchain\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:16:18490)
+    at I (D:\Projects\land-acquisition-blockchain\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:94362)
+(node:24892) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:17956) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Error: projectId is undefined
+    at iZ.construct (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:149:258740)
+    at D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:6010:7738
+    at Array.forEach (<anonymous>)
+    at p.initControllers (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:6010:7713)
+    at new p (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:6010:5481)
+    at iF (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:11034:990)
+    at 71452 (D:\Projects\land-acquisition-blockchain\.next\server\app\register\page.js:1:4365)
+    at Object.t [as require] (D:\Projects\land-acquisition-blockchain\.next\server\webpack-runtime.js:1:143)
+    at require (D:\Projects\land-acquisition-blockchain\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:16:18490)
+    at I (D:\Projects\land-acquisition-blockchain\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:94362)
+(node:29552) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Error: projectId is undefined
+    at iZ.construct (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:149:258740)
+    at D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:6010:7738
+    at Array.forEach (<anonymous>)
+    at p.initControllers (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:6010:7713)
+    at new p (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:6010:5481)
+    at iF (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:11034:990)
+    at 71452 (D:\Projects\land-acquisition-blockchain\.next\server\app\page.js:1:4496)
+    at Object.t [as require] (D:\Projects\land-acquisition-blockchain\.next\server\webpack-runtime.js:1:143)
+    at require (D:\Projects\land-acquisition-blockchain\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:16:18490)
+    at I (D:\Projects\land-acquisition-blockchain\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:94362)
+(node:11248) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Error: projectId is undefined
+    at iZ.construct (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:149:258740)
+    at D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:6010:7738
+    at Array.forEach (<anonymous>)
+    at p.initControllers (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:6010:7713)
+    at new p (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:6010:5481)
+    at iF (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:11034:990)
+    at 71452 (D:\Projects\land-acquisition-blockchain\.next\server\app\login\page.js:1:10789)
+    at Object.t [as require] (D:\Projects\land-acquisition-blockchain\.next\server\webpack-runtime.js:1:143)
+    at require (D:\Projects\land-acquisition-blockchain\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:16:18490)
+    at I (D:\Projects\land-acquisition-blockchain\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:94362)
+   Generating static pages (15/20) 
+Error: projectId is undefined
+    at iZ.construct (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:149:258740)
+    at D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:6010:7738
+    at Array.forEach (<anonymous>)
+    at p.initControllers (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:6010:7713)
+    at new p (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:6010:5481)
+    at iF (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:11034:990)
+    at 71452 (D:\Projects\land-acquisition-blockchain\.next\server\chunks\5597.js:1:1172)
+    at Object.t [as require] (D:\Projects\land-acquisition-blockchain\.next\server\webpack-runtime.js:1:143)
+    at require (D:\Projects\land-acquisition-blockchain\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:16:18490)
+    at I (D:\Projects\land-acquisition-blockchain\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:94362)
+The width(-1) and height(-1) of chart should be greater than 0,
+       please check the style of container, or the props width(100%) and height(100%),
+       or add a minWidth(0) or minHeight(undefined) or use aspect(undefined) to control the
+       height and width.
+(node:23420) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Error: projectId is undefined
+    at iZ.construct (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:149:258740)
+    at D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:6010:7738
+    at Array.forEach (<anonymous>)
+    at p.initControllers (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:6010:7713)
+    at new p (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:6010:5481)
+    at iF (D:\Projects\land-acquisition-blockchain\.next\server\chunks\1369.js:11034:990)
+    at 71452 (D:\Projects\land-acquisition-blockchain\.next\server\chunks\5597.js:1:1172)
+    at Object.t [as require] (D:\Projects\land-acquisition-blockchain\.next\server\webpack-runtime.js:1:143)
+    at require (D:\Projects\land-acquisition-blockchain\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:16:18490)
+    at I (D:\Projects\land-acquisition-blockchain\node_modules\next\dist\compiled\next-server\app-page.runtime.prod.js:12:94362)
+ ✓ Generating static pages (20/20)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+┌ ○ /                                    8.6 kB          673 kB
+├ ○ /_not-found                          879 B          89.7 kB
+├ ƒ /api/acquisition                     0 B                0 B
+├ ƒ /api/acquisition/[id]/approve        0 B                0 B
+├ ƒ /api/acquisition/[id]/lock-funds     0 B                0 B
+├ ƒ /api/acquisition/[id]/reject         0 B                0 B
+├ ƒ /api/acquisition/[id]/release-funds  0 B                0 B
+├ ƒ /api/acquisition/[id]/transfer       0 B                0 B
+├ ƒ /api/acquisition/[id]/verify         0 B                0 B
+├ ƒ /api/auth/[...nextauth]              0 B                0 B
+├ ƒ /api/documents                       0 B                0 B
+├ ƒ /api/documents/[id]                  0 B                0 B
+├ ƒ /api/documents/verify-hash           0 B                0 B
+├ ƒ /api/lands                           0 B                0 B
+├ ƒ /api/lands/[id]                      0 B                0 B
+├ ƒ /api/lands/[id]/register-onchain     0 B                0 B
+├ ƒ /api/lands/geojson                   0 B                0 B
+├ ƒ /api/register                        0 B                0 B
+├ ƒ /api/user/wallet                     0 B                0 B
+├ ○ /authority/acquisitions              6.27 kB         759 kB
+├ ○ /dashboard                           119 kB          332 kB
+├ ƒ /lands/[id]                          9.79 kB         220 kB
+├ ○ /lands/new                           1.17 kB          90 kB
+├ ○ /login                               2.72 kB         109 kB
+├ ○ /map                                 5.37 kB         102 kB
+├ ○ /register                            2.85 kB        99.3 kB
+├ ○ /unauthorized                        142 B          88.9 kB
+└ ○ /verifier/pending                    5.21 kB         758 kB
++ First Load JS shared by all            88.8 kB
+  ├ chunks/7023-89b589c52bea5c22.js      31.7 kB
+  ├ chunks/fd9d1056-c7a2ec305b72513a.js  53.6 kB
+  └ other shared chunks (total)          3.46 kB
+
+
+ƒ Middleware                             49.9 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

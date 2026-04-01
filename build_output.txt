@@ -1,0 +1,22 @@
+
+> land-acquisition-blockchain@1.0.0 build
+> next build
+
+  ▲ Next.js 14.2.5
+  - Environments: .env
+
+   Creating an optimized production build ...
+Failed to compile.
+
+./app/(app)/lands/[id]/page.tsx
+Module not found: Package path . is not exported from package D:\Projects\land-acquisition-blockchain\node_modules\react-map-gl (see exports field in D:\Projects\land-acquisition-blockchain\node_modules\react-map-gl\package.json)
+
+https://nextjs.org/docs/messages/module-not-found
+
+./app/(app)/map/page.tsx
+Module not found: Package path . is not exported from package D:\Projects\land-acquisition-blockchain\node_modules\react-map-gl (see exports field in D:\Projects\land-acquisition-blockchain\node_modules\react-map-gl\package.json)
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+> Build failed because of webpack errors

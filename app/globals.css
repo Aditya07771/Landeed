@@ -1,0 +1,34 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --foreground: #000000;
+  --background: #ffffff;
+
+  --brand-dark: #0f172a;
+  --brand-mid: #1e293b;
+  --brand-emerald: #10b981;
+  --brand-violet: #7c3aed;
+  --brand-amber: #f59e0b;
+  --brand-grid: #1e293b;
+
+  --color-available: #10b981;
+  --color-under-acq: #f59e0b;
+  --color-acquired: #ef4444;
+  --color-disputed: #f97316;
+  --color-blockchain: #7c3aed;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}

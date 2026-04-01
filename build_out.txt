@@ -1,0 +1,110 @@
+
+> land-acquisition-blockchain@1.0.0 build
+> next build
+
+  ▲ Next.js 14.2.5
+  - Environments: .env
+
+   Creating an optimized production build ...
+ ⚠ Compiled with warnings
+
+./node_modules/@metamask/sdk/dist/browser/es/metamask-sdk.js
+Module not found: Can't resolve '@react-native-async-storage/async-storage' in 'D:\Projects\land-acquisition-blockchain\node_modules\@metamask\sdk\dist\browser\es'
+
+Import trace for requested module:
+./node_modules/@metamask/sdk/dist/browser/es/metamask-sdk.js
+./node_modules/@wagmi/connectors/dist/esm/metaMask.js
+./node_modules/@wagmi/connectors/dist/esm/exports/index.js
+./node_modules/wagmi/dist/esm/exports/connectors.js
+./lib/wagmi.ts
+./app/providers.tsx
+
+./node_modules/pino/lib/tools.js
+Module not found: Can't resolve 'pino-pretty' in 'D:\Projects\land-acquisition-blockchain\node_modules\pino\lib'
+
+Import trace for requested module:
+./node_modules/pino/lib/tools.js
+./node_modules/pino/pino.js
+./node_modules/@walletconnect/logger/dist/index.es.js
+./node_modules/@walletconnect/universal-provider/dist/index.es.js
+./node_modules/@walletconnect/ethereum-provider/dist/index.es.js
+./node_modules/@wagmi/connectors/dist/esm/walletConnect.js
+./node_modules/@wagmi/connectors/dist/esm/exports/index.js
+./node_modules/wagmi/dist/esm/exports/connectors.js
+./lib/wagmi.ts
+./app/providers.tsx
+
+
+[1m[33mwarn[39m[22m - The `content` option in your Tailwind CSS configuration is missing or empty.
+[1m[33mwarn[39m[22m - Configure your content sources or your generated CSS will be missing styles.
+[1m[33mwarn[39m[22m - https://tailwindcss.com/docs/content-configuration
+ ⚠ Compiled with warnings
+
+./node_modules/@metamask/sdk/dist/browser/es/metamask-sdk.js
+Module not found: Can't resolve '@react-native-async-storage/async-storage' in 'D:\Projects\land-acquisition-blockchain\node_modules\@metamask\sdk\dist\browser\es'
+
+Import trace for requested module:
+./node_modules/@metamask/sdk/dist/browser/es/metamask-sdk.js
+./node_modules/@wagmi/connectors/dist/esm/metaMask.js
+./node_modules/@wagmi/connectors/dist/esm/exports/index.js
+./node_modules/wagmi/dist/esm/exports/connectors.js
+./lib/wagmi.ts
+./app/providers.tsx
+
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+
+   We detected TypeScript in your project and reconfigured your tsconfig.json file for you. Strict-mode is set to false by default.
+   The following mandatory changes were made to your tsconfig.json:
+
+   	- jsx was set to preserve (next.js implements its own optimized jsx transform)
+
+   Collecting page data ...
+   Generating static pages (0/20) ...
+   Generating static pages (5/20) 
+   Generating static pages (10/20) 
+   Generating static pages (15/20) 
+ ✓ Generating static pages (20/20)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+┌ ○ /                                    5.25 kB        92.8 kB
+├ ○ /_not-found                          871 B          88.4 kB
+├ ƒ /api/acquisition                     0 B                0 B
+├ ƒ /api/acquisition/[id]/approve        0 B                0 B
+├ ƒ /api/acquisition/[id]/lock-funds     0 B                0 B
+├ ƒ /api/acquisition/[id]/reject         0 B                0 B
+├ ƒ /api/acquisition/[id]/release-funds  0 B                0 B
+├ ƒ /api/acquisition/[id]/transfer       0 B                0 B
+├ ƒ /api/acquisition/[id]/verify         0 B                0 B
+├ ƒ /api/auth/[...nextauth]              0 B                0 B
+├ ƒ /api/documents                       0 B                0 B
+├ ƒ /api/documents/[id]                  0 B                0 B
+├ ƒ /api/documents/verify-hash           0 B                0 B
+├ ƒ /api/lands                           0 B                0 B
+├ ƒ /api/lands/[id]                      0 B                0 B
+├ ƒ /api/lands/[id]/register-onchain     0 B                0 B
+├ ƒ /api/lands/geojson                   0 B                0 B
+├ ƒ /api/register                        0 B                0 B
+├ ƒ /api/user/wallet                     0 B                0 B
+├ ○ /authority/acquisitions              3.7 kB          205 kB
+├ ○ /dashboard                           2.9 kB          204 kB
+├ ƒ /lands/[id]                          5.14 kB         206 kB
+├ ○ /lands/new                           1.14 kB        88.7 kB
+├ ○ /login                               769 B          98.1 kB
+├ ○ /map                                 3.39 kB         110 kB
+├ ○ /register                            874 B          88.4 kB
+├ ○ /unauthorized                        137 B          87.7 kB
+└ ○ /verifier/pending                    3.7 kB          205 kB
++ First Load JS shared by all            87.6 kB
+  ├ chunks/23-ebba2880c324a7a0.js        31.5 kB
+  ├ chunks/fd9d1056-108dc8d82e5cf6a5.js  53.6 kB
+  └ other shared chunks (total)          2.41 kB
+
+
+ƒ Middleware                             49.9 kB
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

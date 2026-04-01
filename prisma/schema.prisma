@@ -1,0 +1,104 @@
+// file: prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  OWNER
+  AUTHORITY
+  VERIFIER
+}
+
+enum LandStatus {
+  AVAILABLE
+  UNDER_ACQUISITION
+  ACQUIRED
+  DISPUTED
+}
+
+enum PaymentStatus {
+  PENDING
+  LOCKED
+  RELEASED
+}
+
+model User {
+  id            String   @id @default(cuid())
+  name          String
+  email         String   @unique
+  password      String
+  role          Role     @default(OWNER)
+  walletAddress String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  lands               Land[]
+  acquisitionRequests AcquisitionRequest[] @relation("AuthorityRequests")
+  verifications       AcquisitionRequest[] @relation("VerifierActions")
+}
+
+model Land {
+  id          String     @id @default(cuid())
+  landId      String     @unique
+  ownerId     String
+  area        Float
+  location    String
+  coordinates Json?
+  status      LandStatus @default(AVAILABLE)
+  txHash      String?
+  docHash     String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  owner               User                 @relation(fields: [ownerId], references: [id])
+  documents           Document[]
+  acquisitionRequests AcquisitionRequest[]
+}
+
+model AcquisitionRequest {
+  id            String        @id @default(cuid())
+  landId        String
+  authorityId   String
+  verifierId    String?
+  status        String        @default("PENDING")
+  paymentStatus PaymentStatus @default(PENDING)
+  amount        Float?
+  verifierNote  String?
+  txHash        String?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  land      Land  @relation(fields: [landId], references: [id])
+  authority User  @relation("AuthorityRequests", fields: [authorityId], references: [id])
+  verifier  User? @relation("VerifierActions", fields: [verifierId], references: [id])
+
+  timeline AcquisitionTimeline[]
+}
+
+model AcquisitionTimeline {
+  id                   String   @id @default(cuid())
+  acquisitionRequestId String
+  action               String
+  txHash               String?
+  createdAt            DateTime @default(now())
+
+  acquisitionRequest AcquisitionRequest @relation(fields: [acquisitionRequestId], references: [id])
+}
+
+model Document {
+  id        String   @id @default(cuid())
+  landId    String
+  type      String
+  fileName  String
+  ipfsCid   String
+  hash      String
+  createdAt DateTime @default(now())
+
+  land Land @relation(fields: [landId], references: [id])
+}

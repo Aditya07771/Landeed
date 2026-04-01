@@ -1,0 +1,55 @@
+
+> land-acquisition-blockchain@1.0.0 build
+> next build
+
+  ▲ Next.js 14.2.5
+  - Environments: .env
+
+   Creating an optimized production build ...
+Failed to compile.
+
+./app/(app)/lands/[id]/page.tsx
+Error: 
+  [31mx[0m You're importing a component that needs useEffect. It only works in a Client Component but none of its parents are marked with "use client", so they're Server Components by default.
+  [31m|[0m Learn more: https://nextjs.org/docs/getting-started/react-essentials
+  [31m|[0m 
+  [31m|[0m 
+   ,-[[36;1;4mD:\Projects\land-acquisition-blockchain\app\(app)\lands\[id]\page.tsx[0m:1:1]
+ [2m1[0m | import { useEffect, useState, useMemo } from 'react'
+   : [31;1m         ^^^^^^^^^[0m
+ [2m2[0m | import { useSession } from 'next-auth/react'
+ [2m3[0m | import { useParams } from 'next/navigation'
+ [2m4[0m | import Link from 'next/link'
+   `----
+
+  [31mx[0m You're importing a component that needs useState. It only works in a Client Component but none of its parents are marked with "use client", so they're Server Components by default.
+  [31m|[0m Learn more: https://nextjs.org/docs/getting-started/react-essentials
+  [31m|[0m 
+  [31m|[0m 
+   ,-[[36;1;4mD:\Projects\land-acquisition-blockchain\app\(app)\lands\[id]\page.tsx[0m:1:1]
+ [2m1[0m | import { useEffect, useState, useMemo } from 'react'
+   : [31;1m                    ^^^^^^^^[0m
+ [2m2[0m | import { useSession } from 'next-auth/react'
+ [2m3[0m | import { useParams } from 'next/navigation'
+ [2m4[0m | import Link from 'next/link'
+   `----
+
+  [31mx[0m You're importing a component that needs useParams. It only works in a Client Component but none of its parents are marked with "use client", so they're Server Components by default.
+  [31m|[0m Learn more: https://nextjs.org/docs/getting-started/react-essentials
+  [31m|[0m 
+  [31m|[0m 
+   ,-[[36;1;4mD:\Projects\land-acquisition-blockchain\app\(app)\lands\[id]\page.tsx[0m:1:1]
+ [2m1[0m | import { useEffect, useState, useMemo } from 'react'
+ [2m2[0m | import { useSession } from 'next-auth/react'
+ [2m3[0m | import { useParams } from 'next/navigation'
+   : [31;1m         ^^^^^^^^^[0m
+ [2m4[0m | import Link from 'next/link'
+ [2m5[0m | import Map, { Source, Layer } from 'react-map-gl/mapbox'
+ [2m6[0m | import 'mapbox-gl/dist/mapbox-gl.css'
+   `----
+
+Import trace for requested module:
+./app/(app)/lands/[id]/page.tsx
+
+
+> Build failed because of webpack errors
