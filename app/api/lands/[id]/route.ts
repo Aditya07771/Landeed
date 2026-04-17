@@ -17,8 +17,14 @@ export async function GET(
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
         }
 
-        const land = await prisma.land.findUnique({
-            where: { id: params.id },
+        const orConditions: any[] = [
+            { id: params.id },
+            { landId: params.id },
+            { landId: `LAND-${params.id.replace(/^LAND-/, '')}` }
+        ]
+
+        const land = await prisma.land.findFirst({
+            where: { OR: orConditions },
             include: {
                 owner: { select: { id: true, name: true, email: true, walletAddress: true } },
                 documents: true,
@@ -64,8 +70,22 @@ export async function PATCH(
             data.coordinates = normalizeToGeoJSON(data.coordinates)
         }
 
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(params.id)
+        const orConditions: any[] = [
+            { landId: params.id },
+            { landId: `LAND-${params.id.replace(/^LAND-/, '')}` }
+        ]
+        if (isUUID) orConditions.push({ id: params.id })
+
+        // First find the land to get the internal UUID if friendly ID was passed
+        const existingLand = await prisma.land.findFirst({
+            where: { OR: orConditions }
+        })
+        
+        if (!existingLand) return NextResponse.json({ error: 'Not found' }, { status: 404 })
+
         const land = await prisma.land.update({
-            where: { id: params.id },
+            where: { id: existingLand.id },
             data
         })
 

@@ -5,16 +5,18 @@ import { useSession } from 'next-auth/react'
 import { useEffect, useState } from 'react'
 import { Shield, Activity, Map, FileCheck, Search, Filter } from 'lucide-react'
 import {
-  createColumnHelper,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-  getSortedRowModel,
-  SortingState,
+    createColumnHelper,
+    flexRender,
+    getCoreRowModel,
+    useReactTable,
+    getSortedRowModel,
+    SortingState,
 } from '@tanstack/react-table'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import { RegisterLandOnChain } from '@/components/RegisterLandOnChain'
+import { PrismaClient } from '@prisma/client'
 import Link from 'next/link'
+
 
 interface Land {
     id: string
@@ -23,25 +25,29 @@ interface Land {
     location: string
     status: string
     txHash: string | null
+    documentHash: string   // ✅ ADD THIS
     owner: { name: string }
     createdAt: string
 }
 
 // Mock chart data
 const chartData = [
-  { name: 'Jan', lands: 12, acquisitions: 2 },
-  { name: 'Feb', lands: 19, acquisitions: 5 },
-  { name: 'Mar', lands: 27, acquisitions: 8 },
-  { name: 'Apr', lands: 35, acquisitions: 12 },
-  { name: 'May', lands: 42, acquisitions: 15 },
-  { name: 'Jun', lands: 50, acquisitions: 22 },
+    { name: 'Jan', lands: 12, acquisitions: 2 },
+    { name: 'Feb', lands: 19, acquisitions: 5 },
+    { name: 'Mar', lands: 27, acquisitions: 8 },
+    { name: 'Apr', lands: 35, acquisitions: 12 },
+    { name: 'May', lands: 42, acquisitions: 15 },
+    { name: 'Jun', lands: 50, acquisitions: 22 },
 ]
 
 export default function DashboardPage() {
+
+    const prisma = new PrismaClient()
     const { data: session } = useSession()
     const [lands, setLands] = useState<Land[]>([])
     const [sorting, setSorting] = useState<SortingState>([])
     const [globalFilter, setGlobalFilter] = useState('')
+
 
     useEffect(() => {
         fetchLands()
@@ -96,7 +102,12 @@ export default function DashboardPage() {
                 const land = row.original
                 return (
                     <div className="flex items-center gap-3">
-                        <Link href={`/lands/${land.id}`} className="text-sm font-medium text-violet-600 hover:text-violet-700">
+
+                        
+                        <Link
+                            href={`/lands/${land.landId}`}
+                            className="text-sm font-medium text-violet-600 hover:text-violet-700"
+                        >
                             Details
                         </Link>
                         {land.txHash ? (
@@ -104,7 +115,12 @@ export default function DashboardPage() {
                                 Verify
                             </a>
                         ) : session?.user?.role === 'OWNER' ? (
-                            <RegisterLandOnChain landId={land.landId} landDbId={land.id} onSuccess={fetchLands} />
+                            <RegisterLandOnChain
+  landId={land.landId}
+  landDbId={land.id}
+  documentHash={land.documentHash}   // ✅ FIX 1
+  onSuccess={() => fetchLands()}     // ✅ FIX 2
+/>
                         ) : null}
                     </div>
                 )
@@ -112,8 +128,8 @@ export default function DashboardPage() {
         })
     ]
 
-    const filteredLands = lands.filter(l => 
-        l.landId.toLowerCase().includes(globalFilter.toLowerCase()) || 
+    const filteredLands = lands.filter(l =>
+        l.landId.toLowerCase().includes(globalFilter.toLowerCase()) ||
         l.location.toLowerCase().includes(globalFilter.toLowerCase()) ||
         l.owner.name.toLowerCase().includes(globalFilter.toLowerCase())
     )
@@ -140,6 +156,7 @@ export default function DashboardPage() {
                 <div>
                     <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
                     <p className="text-slate-500 mt-1">Manage and monitor land registry activities.</p>
+                    console.log("hello");
                 </div>
             </div>
 
@@ -174,12 +191,12 @@ export default function DashboardPage() {
                         <AreaChart data={chartData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                             <defs>
                                 <linearGradient id="colorLands" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
-                                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                                    <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
+                                    <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
                                 </linearGradient>
                                 <linearGradient id="colorAcq" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
+                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
                                 </linearGradient>
                             </defs>
                             <XAxis dataKey="name" stroke="#cbd5e1" fontSize={12} tickLine={false} axisLine={false} />
@@ -199,16 +216,16 @@ export default function DashboardPage() {
                     <h3 className="text-lg font-semibold text-slate-900">Land Registry Records</h3>
                     <div className="relative w-full sm:w-72">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                        <input 
-                            type="text" 
-                            placeholder="Search by ID, location, or owner..." 
+                        <input
+                            type="text"
+                            placeholder="Search by ID, location, or owner..."
                             value={globalFilter}
                             onChange={e => setGlobalFilter(e.target.value)}
                             className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all text-slate-900 placeholder:text-slate-400"
                         />
                     </div>
                 </div>
-                
+
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm whitespace-nowrap">
                         <thead className="bg-slate-50 border-b border-slate-200 text-slate-500">

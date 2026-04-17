@@ -1,8 +1,6 @@
 // file: app/(app)/lands/[id]/page.tsx
 // Same as original but replaces react-map-gl/mapbox mini-map
 // with a dynamic Leaflet LandMiniMap component.
-// Remove: import Map, { Source, Layer } from 'react-map-gl/mapbox'
-// Add:    dynamic import of LandMiniMap
 
 'use client'
 
@@ -17,11 +15,12 @@ import { RegisterLandOnChain } from '@/components/RegisterLandOnChain'
 import { RequestAcquisition } from '@/components/RequestAcquisition'
 import DocumentUpload from '@/components/DocumentUpload'
 import DocumentList from '@/components/DocumentList'
+import { GenerateCertificateButton } from '@/components/GenerateCertificateButton'
 import { updateDocHashOnChain } from '@/lib/contracts'
 import { useAccount } from 'wagmi'
 import {
     ExternalLink, Hash, CheckCircle, ChevronLeft,
-    Building2, User, Ruler, Activity
+    Building2, User, Ruler, Activity, History
 } from 'lucide-react'
 
 // ── SSR-safe Leaflet mini-map ─────────────────────────────────────────────────
@@ -49,10 +48,14 @@ export default function LandDetailPage() {
     const { data: session } = useSession()
     const { isConnected } = useAccount()
     const [land, setLand] = useState<any>(null)
+    const [history, setHistory] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [hashingDoc, setHashingDoc] = useState(false)
 
-    useEffect(() => { fetchLand() }, [id])
+    useEffect(() => { 
+        fetchLand()
+        fetchHistory()
+    }, [id])
 
     async function fetchLand() {
         const res = await fetch(`/api/lands/${id}`)
@@ -60,14 +63,26 @@ export default function LandDetailPage() {
         setLoading(false)
     }
 
+    async function fetchHistory() {
+        const res = await fetch(`/api/lands/${id}/history`)
+        if (res.ok) {
+            setHistory(await res.json())
+        }
+    }
+
     async function handleStoreHashOnChain() {
+        // Kept for backward compatibility if needed, though replaced by new flows
         if (!land?.docHash || !isConnected) return
         setHashingDoc(true)
         try {
             const result = await updateDocHashOnChain(land.landId, land.docHash)
             alert(`Document hash stored on-chain! Tx: ${result.txHash}`)
         } catch (err: any) {
-            alert(err.message)
+             if (err?.code === 'ACTION_REJECTED' || err?.message?.includes('user rejected')) {
+                alert('Transaction cancelled.')
+            } else {
+                alert(err.reason || err.message || 'Blockchain transaction failed')
+            }
         } finally {
             setHashingDoc(false)
         }
@@ -81,9 +96,14 @@ export default function LandDetailPage() {
     if (!land) return <div className="p-8 text-center text-slate-500">Land not found</div>
 
     const latestAcquisition = land.acquisitionRequests?.[0]
-    const isOwner = session?.user?.id === land.ownerId
+    const isOwner = session?.user?.id === land.ownerId || (session?.user?.email && session?.user?.email === land.owner?.email)
     const colors = STATUS_PAINT[land.status] || { fill: '#cbd5e1', border: '#94a3b8' }
 
+    // Sort documents by createdAt desc to get the latest one
+    const sortedDocs = [...(land.documents || [])].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    const latestDoc = sortedDocs[0]
+    const latestDocHash = latestDoc?.hash || ''
+    
     return (
         <div className="max-w-6xl mx-auto space-y-6 pb-12">
             <Link href="/dashboard" className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-slate-900 transition-colors">
@@ -105,10 +125,6 @@ export default function LandDetailPage() {
                         Registered {new Date(land.createdAt).toLocaleDateString()}
                     </p>
                 </div>
-
-                {!land.txHash && isOwner && (
-                    <RegisterLandOnChain landId={land.landId} landDbId={land.id} onSuccess={fetchLand} />
-                )}
 
                 {land.status === 'AVAILABLE' && session?.user?.role === 'AUTHORITY' && land.txHash && (
                     <RequestAcquisition landId={land.landId} landDbId={land.id} onSuccess={fetchLand} />
@@ -155,11 +171,11 @@ export default function LandDetailPage() {
                             </div>
                         </div>
 
-                        {land.txHash && (
+                        {land.txHash ? (
                             <div>
                                 <p className="text-xs font-medium text-slate-500 mb-1 flex items-center gap-1"><Activity size={14} /> Blockchain Registration</p>
                                 <a
-                                    href={`https://mumbai.polygonscan.com/tx/${land.txHash}`}
+                                    href={`https://polygonscan.com/tx/${land.txHash}`}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="bg-violet-50 hover:bg-violet-100 transition-colors p-3 rounded-lg border border-violet-100 flex items-center justify-between group"
@@ -168,11 +184,19 @@ export default function LandDetailPage() {
                                     <ExternalLink size={14} className="text-violet-500 shrink-0 group-hover:scale-110 transition-transform" />
                                 </a>
                             </div>
+                        ) : (
+                            isOwner && land.status === 'AVAILABLE' && (
+                                <div className="mt-4 pt-4 border-t border-slate-100">
+                                    <h4 className="text-sm font-semibold text-slate-900 mb-3">On-Chain Registration</h4>
+                                    <RegisterLandOnChain landId={land.landId} landDbId={land.id} documentHash={latestDocHash} onSuccess={fetchLand} />
+                                </div>
+                            )
                         )}
-
+                        
+                        {/* Fallback for legacy hashing UI if docHash exists on land directly */}
                         {land.docHash && (
-                            <div>
-                                <p className="text-xs font-medium text-slate-500 mb-1 flex items-center gap-1"><Hash size={14} /> IPFS Document Hash</p>
+                            <div className="mt-4 pt-4 border-t border-slate-100">
+                                <p className="text-xs font-medium text-slate-500 mb-1 flex items-center gap-1"><Hash size={14} /> Legacy IPFS Hash</p>
                                 <div className="bg-slate-50 p-3 rounded-lg border border-slate-100 break-all text-xs font-mono text-slate-600">
                                     {land.docHash}
                                 </div>
@@ -190,6 +214,14 @@ export default function LandDetailPage() {
                                 )}
                             </div>
                         )}
+                        
+                        {/* Generate Certificate Button */}
+                        <GenerateCertificateButton 
+                            landId={land.landId} 
+                            userName={land.owner.name} 
+                            userRole="OWNER" 
+                            txHash={land.txHash} 
+                        />
                     </div>
                 </div>
 
@@ -252,10 +284,22 @@ export default function LandDetailPage() {
                         </div>
                         {isOwner && (
                             <div className="mb-6">
-                                <DocumentUpload landId={land.id} onUploadComplete={fetchLand} />
+                                <DocumentUpload landId={land.id} onUploadComplete={() => {
+                                    fetchLand()
+                                    fetchHistory()
+                                }} />
                             </div>
                         )}
                         <DocumentList landId={land.id} />
+                    </div>
+
+                    {/* General Land History */}
+                    <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm">
+                        <div className="flex items-center gap-2 mb-6 pb-4 border-b border-slate-100">
+                            <History size={20} className="text-slate-500" />
+                            <h3 className="text-lg font-bold text-slate-900">Land History Registry</h3>
+                        </div>
+                        <AcquisitionTimeline events={history} />
                     </div>
                 </div>
             </div>

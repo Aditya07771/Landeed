@@ -1,7 +1,7 @@
 // file: components/AcquisitionTimeline.tsx
 'use client'
 
-import { FilePen, ShieldCheck, CheckCircle2, XCircle, Lock, Unlock, Handshake } from 'lucide-react'
+import { ExternalLink, CheckCircle2, XCircle, Send, FileText, Activity } from 'lucide-react'
 import { ReactNode } from 'react'
 
 interface TimelineEvent {
@@ -15,14 +15,34 @@ interface Props {
     events: TimelineEvent[]
 }
 
-const actionConfig: Record<string, { label: string, color: string, border: string, icon: ReactNode }> = {
-    REQUESTED: { label: 'Acquisition Requested', color: 'bg-blue-100 text-blue-700', border: 'border-blue-200', icon: <FilePen size={18} /> },
-    VERIFIED: { label: 'Land Verified', color: 'bg-amber-100 text-amber-700', border: 'border-amber-200', icon: <ShieldCheck size={18} /> },
-    APPROVED: { label: 'Acquisition Approved', color: 'bg-emerald-100 text-emerald-700', border: 'border-emerald-200', icon: <CheckCircle2 size={18} /> },
-    REJECTED: { label: 'Acquisition Rejected', color: 'bg-red-100 text-red-700', border: 'border-red-200', icon: <XCircle size={18} /> },
-    PAYMENT_LOCKED: { label: 'Payment Locked (Escrow)', color: 'bg-violet-100 text-violet-700', border: 'border-violet-200', icon: <Lock size={18} /> },
-    PAYMENT_RELEASED: { label: 'Payment Released', color: 'bg-violet-100 text-violet-700', border: 'border-violet-200', icon: <Unlock size={18} /> },
-    TRANSFERRED: { label: 'Ownership Transferred', color: 'bg-emerald-100 text-emerald-700', border: 'border-emerald-200', icon: <Handshake size={18} /> }
+function getEventConfig(action: string): { color: string, border: string, icon: ReactNode, bg: string } {
+    const act = action.toUpperCase()
+    if (act === 'ACQUISITION_REQUESTED' || act === 'REQUESTED') {
+        return { color: 'text-blue-600', border: 'border-blue-200', bg: 'bg-blue-50', icon: <Send size={16} className="text-blue-600 relative -ml-0.5 mt-0.5" /> }
+    }
+    if (act.includes('APPROVE') || act.includes('VERIF') || act.includes('TRANSFERRED') || act.includes('RELEASED')) {
+        return { color: 'text-emerald-600', border: 'border-emerald-200', bg: 'bg-emerald-50', icon: <CheckCircle2 size={18} className="text-emerald-600" /> }
+    }
+    if (act.includes('REJECT') || act.includes('FAILED')) {
+        return { color: 'text-red-600', border: 'border-red-200', bg: 'bg-red-50', icon: <XCircle size={18} className="text-red-600" /> }
+    }
+    return { color: 'text-slate-500', border: 'border-slate-200', bg: 'bg-slate-50', icon: <Activity size={16} className="text-slate-500" /> }
+}
+
+function formatActionText(action: string) {
+    return action.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()).join(' ')
+}
+
+function formatDate(dateStr: string) {
+    const d = new Date(dateStr)
+    return d.toLocaleString('en-US', {
+        month: 'short',
+        day: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true
+    })
 }
 
 export default function AcquisitionTimeline({ events }: Props) {
@@ -35,47 +55,41 @@ export default function AcquisitionTimeline({ events }: Props) {
     }
 
     return (
-        <div className="flow-root">
+        <div className="flow-root pl-2 mt-4 max-w-lg mb-8">
             <ul role="list" className="-mb-8">
                 {events.map((event, index) => {
                     const isLast = index === events.length - 1
-                    const config = actionConfig[event.action] || { 
-                        label: event.action, 
-                        color: 'bg-slate-100 text-slate-700', 
-                        border: 'border-slate-200',
-                        icon: <CheckCircle2 size={18} /> 
-                    }
+                    const config = getEventConfig(event.action)
+                    const title = formatActionText(event.action)
 
                     return (
                         <li key={event.id}>
                             <div className="relative pb-8">
                                 {!isLast ? (
-                                    <span className="absolute left-6 top-6 -ml-px h-full w-0.5 bg-slate-200" aria-hidden="true" />
+                                    <span className="absolute left-4 top-4 -ml-px h-full w-[2px] bg-slate-200" aria-hidden="true" />
                                 ) : null}
-                                <div className="relative flex space-x-4 px-2">
+                                <div className="relative flex space-x-4">
                                     <div>
-                                        <span className={`h-10 w-10 flex items-center justify-center rounded-full ring-8 ring-white border ${config.border} ${config.color}`}>
+                                        <span className={`h-8 w-8 flex items-center justify-center rounded-full ring-4 ring-white border ${config.border} ${config.bg} z-10 relative`}>
                                             {config.icon}
                                         </span>
                                     </div>
-                                    <div className="flex min-w-0 flex-1 justify-between space-x-4 pt-1.5">
+                                    <div className="flex min-w-0 flex-1 justify-between space-x-4 pt-1">
                                         <div>
-                                            <p className="text-sm font-semibold text-slate-900">{config.label}</p>
-                                            <div className="mt-1 flex flex-col gap-1">
-                                                <p className="text-xs text-slate-500 font-medium">
-                                                    {new Date(event.createdAt).toLocaleString(undefined, {
-                                                        dateStyle: 'medium',
-                                                        timeStyle: 'short'
-                                                    })}
+                                            <p className="text-sm font-bold text-slate-900">{title}</p>
+                                            <div className="mt-0.5 flex flex-col gap-1.5">
+                                                <p className="text-[11px] text-slate-500 font-medium tracking-wide">
+                                                    {formatDate(event.createdAt)}
                                                 </p>
                                                 {event.txHash && (
                                                     <a
-                                                        href={`https://mumbai.polygonscan.com/tx/${event.txHash}`}
+                                                        href={`https://polygonscan.com/tx/${event.txHash}`}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
-                                                        className="inline-flex items-center gap-1 text-xs font-mono font-medium text-violet-600 hover:text-violet-700 w-fit"
+                                                        className="inline-flex items-center gap-1.5 text-[11px] font-medium text-violet-600 hover:text-violet-700 w-fit bg-violet-50 px-2.5 py-1 rounded-md border border-violet-100 transition-colors"
                                                     >
-                                                        Tx: {event.txHash.slice(0, 8)}...{event.txHash.slice(-6)}
+                                                        <ExternalLink size={12} />
+                                                        View Transaction
                                                     </a>
                                                 )}
                                             </div>

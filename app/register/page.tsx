@@ -10,21 +10,55 @@ export default function RegisterPage() {
     const router = useRouter()
     const [error, setError] = useState('')
     const [loading, setLoading] = useState(false)
+    const [role, setRole] = useState('OWNER')
+    const [panInput, setPanInput] = useState('')
+    
+    // Inline errors
+    const [aadharError, setAadharError] = useState('')
+    const [panError, setPanError] = useState('')
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault()
         setLoading(true)
         setError('')
+        setAadharError('')
+        setPanError('')
+        
         const formData = new FormData(e.currentTarget)
+        const name = formData.get('name') as string
+        const email = formData.get('email') as string
+        const password = formData.get('password') as string
+        const selectedRole = formData.get('role') as string
+        const aadharNumber = formData.get('aadharNumber') as string
+        const panNumber = panInput
+
+        let hasError = false
+        
+        if (selectedRole === 'OWNER') {
+            if (aadharNumber && !/^\d{12}$/.test(aadharNumber)) {
+                setAadharError('Aadhar must be exactly 12 digits')
+                hasError = true
+            }
+            if (panNumber && !/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/.test(panNumber)) {
+                setPanError('PAN must match format ABCDE1234F')
+                hasError = true
+            }
+        }
+
+        if (hasError) {
+            setLoading(false)
+            return
+        }
 
         const res = await fetch('/api/register', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                name: formData.get('name'),
-                email: formData.get('email'),
-                password: formData.get('password'),
-                role: formData.get('role')
+                name,
+                email,
+                password,
+                role: selectedRole,
+                ...(selectedRole === 'OWNER' && aadharNumber && panNumber ? { aadharNumber, panNumber } : {})
             })
         })
 
@@ -32,7 +66,7 @@ export default function RegisterPage() {
             router.push('/login')
         } else {
             const data = await res.json()
-            setError(data.error)
+            setError(data.error || 'Registration failed')
             setLoading(false)
         }
     }
@@ -150,7 +184,9 @@ export default function RegisterPage() {
                             <label className="block text-sm font-medium text-slate-700 mb-1.5">Select Role</label>
                             <div className="relative">
                                 <select 
-                                    name="role" 
+                                    name="role"
+                                    value={role}
+                                    onChange={(e) => setRole(e.target.value)}
                                     className="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-500/20 focus:border-violet-500 transition-all appearance-none text-slate-700"
                                 >
                                     <option value="OWNER">Land Owner</option>
@@ -163,6 +199,38 @@ export default function RegisterPage() {
                             </div>
                         </div>
 
+                        {role === 'OWNER' && (
+                            <>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1.5">Aadhar Number (Optional)</label>
+                                    <input
+                                        name="aadharNumber"
+                                        type="text"
+                                        placeholder="12-digit number"
+                                        maxLength={12}
+                                        pattern="[0-9]{12}"
+                                        className={`w-full p-3 bg-slate-50 border ${aadharError ? 'border-red-300 focus:ring-red-500/20 focus:border-red-500' : 'border-slate-200 focus:ring-violet-500/20 focus:border-violet-500'} rounded-xl focus:outline-none focus:ring-2 transition-all text-slate-900 placeholder:text-slate-400`}
+                                    />
+                                    {aadharError && <p className="text-red-500 text-xs mt-1">{aadharError}</p>}
+                                    <p className="text-slate-400 text-xs mt-1.5">Your document numbers are hashed before storage and never stored in plain text.</p>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-slate-700 mb-1.5">PAN Number (Optional)</label>
+                                    <input
+                                        name="panNumber"
+                                        type="text"
+                                        placeholder="e.g. ABCDE1234F"
+                                        maxLength={10}
+                                        value={panInput}
+                                        onChange={(e) => setPanInput(e.target.value.toUpperCase())}
+                                        className={`w-full p-3 bg-slate-50 border ${panError ? 'border-red-300 focus:ring-red-500/20 focus:border-red-500' : 'border-slate-200 focus:ring-violet-500/20 focus:border-violet-500'} rounded-xl focus:outline-none focus:ring-2 transition-all text-slate-900 placeholder:text-slate-400`}
+                                    />
+                                    {panError && <p className="text-red-500 text-xs mt-1">{panError}</p>}
+                                    <p className="text-slate-400 text-xs mt-1.5">Your document numbers are hashed before storage and never stored in plain text.</p>
+                                </div>
+                            </>
+                        )}
+
                         <button 
                             type="submit" 
                             disabled={loading}
@@ -171,7 +239,7 @@ export default function RegisterPage() {
                             {loading ? (
                                 <>
                                     <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                                    Creating...
+                                    Saving to database...
                                 </>
                             ) : 'Register Account'}
                         </button>

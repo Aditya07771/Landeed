@@ -13,51 +13,50 @@ export async function POST(
             return NextResponse.json({ error: 'Unauthorized', code: 'UNAUTHORIZED' }, { status: 401 })
         }
 
+        const documentId = params.id
         const { txHash } = await req.json()
 
         if (!txHash) {
             return NextResponse.json({ error: 'Missing txHash', code: 'VALIDATION_ERROR' }, { status: 400 })
         }
 
-        const orConditions: any[] = [
-            { id: params.id },
-            { landId: params.id },
-            { landId: `LAND-${params.id.replace(/^LAND-/, '')}` }
-        ]
-
-        const land = await prisma.land.findFirst({
-            where: { OR: orConditions }
+        const document = await prisma.document.findUnique({
+            where: { id: documentId },
+            include: { land: true }
         })
 
-        const landId = land?.id
-
-        if (!land) {
-            return NextResponse.json({ error: 'Land not found', code: 'NOT_FOUND' }, { status: 404 })
+        if (!document) {
+            return NextResponse.json({ error: 'Document not found', code: 'NOT_FOUND' }, { status: 404 })
         }
 
-        if (land.ownerId !== session.user.id) {
+        if (document.land.ownerId !== session.user.id) {
             return NextResponse.json({ error: 'Not the land owner', code: 'FORBIDDEN' }, { status: 403 })
         }
 
-        const updatedLand = await prisma.land.update({
-            where: { id: landId },
-            data: { txHash: txHash }
+        const updatedDoc = await prisma.document.update({
+            where: { id: documentId },
+            data: {
+                onChainTxHash: txHash,
+                isOnChainVerified: true
+            }
         })
 
         await prisma.landHistory.create({
             data: {
-                landId: land.id,
-                action: 'ONCHAIN_REGISTERED',
+                landId: document.landId,
+                action: 'DOCUMENT_ANCHORED',
                 performedBy: session.user.id,
                 metadata: {
-                    txHash: txHash
+                    ipfsCid: document.ipfsCid,
+                    txHash: txHash,
+                    documentId: document.id
                 }
             }
         })
 
-        return NextResponse.json(updatedLand, { status: 200 })
+        return NextResponse.json(updatedDoc, { status: 200 })
     } catch (error) {
-        console.error('Register on-chain error:', error)
-        return NextResponse.json({ error: 'Failed to process on-chain registration', code: 'SERVER_ERROR', details: error }, { status: 500 })
+        console.error('Anchor on-chain error:', error)
+        return NextResponse.json({ error: 'Failed to anchor document', code: 'SERVER_ERROR', details: error }, { status: 500 })
     }
 }

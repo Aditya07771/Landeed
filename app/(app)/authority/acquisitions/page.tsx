@@ -69,15 +69,24 @@ export default function AuthorityAcquisitionsPage() {
         try {
             const result = await approveAcquisitionOnChain(acq.land.landId)
 
-            await fetch(`/api/acquisition/${acq.id}/approve`, {
+            const res = await fetch(`/api/acquisition/${acq.id}/approve`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ txHash: result.txHash })
             })
 
+            if (!res.ok) {
+                const data = await res.json()
+                throw new Error(data.error || 'Backend failed to process approval')
+            }
+
             fetchAcquisitions()
         } catch (err: any) {
-            setError(err.message)
+            if (err?.code === 'ACTION_REJECTED' || err?.message?.includes('user rejected')) {
+                setError('Transaction cancelled.')
+            } else {
+                setError(err.reason || err.message || 'Failed to approve acquisition')
+            }
         } finally {
             setActionLoading(null)
         }
@@ -98,18 +107,27 @@ export default function AuthorityAcquisitionsPage() {
         try {
             const result = await transferOwnershipOnChain(acq.land.landId, newOwnerAddress)
 
-            await fetch(`/api/acquisition/${acq.id}/transfer`, {
+            const res = await fetch(`/api/acquisition/${acq.id}/transfer`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    newOwnerId: acq.land.owner.id,
+                    newOwnerId: session?.user?.id, // Should transfer to Authority based on domain logic? Actually, we use newOwnerId param
                     txHash: result.txHash
                 })
             })
 
+            if (!res.ok) {
+                const data = await res.json()
+                throw new Error(data.error || 'Failed to sync transfer with backend')
+            }
+
             fetchAcquisitions()
         } catch (err: any) {
-            setError(err.message)
+            if (err?.code === 'ACTION_REJECTED' || err?.message?.includes('user rejected')) {
+                setError('Transaction cancelled.')
+            } else {
+                setError(err.reason || err.message || 'Failed to transfer ownership')
+            }
         } finally {
             setActionLoading(null)
         }
@@ -130,67 +148,67 @@ export default function AuthorityAcquisitionsPage() {
     return (
         <div className="p-8">
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-2xl font-bold">My Acquisition Requests</h1>
+                <h1 className="text-2xl font-bold text-black">My Acquisition Requests</h1>
                 <div className="flex gap-4 items-center">
-                    <a href="/dashboard" className="text-blue-500">Dashboard</a>
-                    <a href="/map" className="text-blue-500">Map</a>
                     <WalletConnect />
                 </div>
             </div>
 
-            {error && <p className="text-red-500 mb-4">{error}</p>}
+            {error && <p className="text-red-500 mb-4 bg-red-50 p-2 rounded">{error}</p>}
 
             <div className="space-y-6">
                 {acquisitions.map(acq => (
-                    <div key={acq.id} className="border rounded p-4">
+                    <div key={acq.id} className="border rounded-xl p-6 bg-white shadow-sm border-slate-200">
                         <div className="flex justify-between items-start mb-4">
                             <div>
-                                <h2 className="text-lg font-bold">{acq.land.landId}</h2>
-                                <p className="text-gray-500">{acq.land.location}</p>
+                                <h2 className="text-xl font-bold text-slate-800">{acq.land.landId}</h2>
+                                <p className="text-slate-700 font-semibold text-sm mt-1">{acq.land.location}</p>
                             </div>
-                            <span className={`px-2 py-1 rounded text-sm ${statusColors[acq.status]}`}>
+                            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusColors[acq.status] || 'bg-slate-100 text-slate-800'}`}>
                                 {acq.status}
                             </span>
                         </div>
 
-                        <div className="grid grid-cols-4 gap-4 mb-4">
-                            <div>
-                                <p className="text-sm text-gray-500">Owner</p>
-                                <p>{acq.land.owner.name}</p>
+                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                            <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                <p className="text-xs text-slate-700 font-semibold font-medium uppercase tracking-wider mb-1">Owner</p>
+                                <p className="font-semibold text-slate-800">{acq.land.owner.name}</p>
                             </div>
                             {acq.amount && (
-                                <div>
-                                    <p className="text-sm text-gray-500">Compensation</p>
-                                    <p>{acq.amount} MATIC</p>
+                                <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                    <p className="text-xs text-slate-700 font-semibold font-medium uppercase tracking-wider mb-1">Compensation</p>
+                                    <p className="font-semibold text-slate-800 text-violet-600">{acq.amount} MATIC</p>
                                 </div>
                             )}
                             {acq.verifier && (
-                                <div>
-                                    <p className="text-sm text-gray-500">Verifier</p>
-                                    <p>{acq.verifier.name}</p>
+                                <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                    <p className="text-xs text-slate-700 font-semibold font-medium uppercase tracking-wider mb-1">Verifier</p>
+                                    <p className="font-semibold text-slate-800">{acq.verifier.name}</p>
                                 </div>
                             )}
-                            <div>
-                                <p className="text-sm text-gray-500">Payment</p>
-                                <p>{acq.paymentStatus}</p>
+                            <div className="bg-slate-50 p-3 rounded-lg border border-slate-100">
+                                <p className="text-xs text-slate-700 font-semibold font-medium uppercase tracking-wider mb-1">Payment</p>
+                                <p className="font-semibold text-slate-800">{acq.paymentStatus}</p>
                             </div>
                         </div>
 
                         {acq.verifierNote && (
-                            <div className="mb-4 p-2 bg-gray-50 rounded">
-                                <p className="text-sm text-gray-500">Verifier Note</p>
-                                <p>{acq.verifierNote}</p>
+                            <div className="mb-6 p-4 bg-amber-50 rounded-lg border border-amber-100">
+                                <p className="text-xs text-amber-700 font-medium uppercase tracking-wider mb-1">Verifier Note</p>
+                                <p className="text-amber-900 text-sm">{acq.verifierNote}</p>
                             </div>
                         )}
 
-                        <div className="flex gap-4 mb-4">
+                        <div className="flex flex-wrap gap-4 mb-6">
                             {acq.status === 'VERIFIED' && (
                                 <button
                                     onClick={() => handleApprove(acq)}
                                     disabled={actionLoading === acq.id}
-                                    className="p-2 bg-green-500 text-white rounded disabled:opacity-50"
+                                    className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
                                 >
-                                    {actionLoading === acq.id ? 'Processing...' : 'Approve Acquisition'}
+                                    {actionLoading === acq.id ? (
+                                        <><div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" /> Processing...</>
+                                    ) : 'Approve Acquisition'}
                                 </button>
                             )}
 
@@ -198,34 +216,40 @@ export default function AuthorityAcquisitionsPage() {
                                 <button
                                     onClick={() => handleTransfer(acq)}
                                     disabled={actionLoading === acq.id}
-                                    className="p-2 bg-purple-500 text-white rounded disabled:opacity-50"
+                                    className="px-5 py-2.5 bg-violet-600 hover:bg-violet-700 text-white font-medium rounded-lg transition-colors disabled:opacity-50 flex items-center gap-2"
                                 >
-                                    {actionLoading === acq.id ? 'Processing...' : 'Transfer Ownership'}
+                                    {actionLoading === acq.id ? (
+                                        <><div className="w-4 h-4 rounded-full border-2 border-white/30 border-t-white animate-spin" /> Processing...</>
+                                    ) : 'Transfer Ownership'}
                                 </button>
                             )}
                         </div>
 
-                        {acq.status === 'APPROVED' && acq.land.owner.walletAddress && acq.amount && (
-                            <EscrowActions
-                                acquisitionId={acq.id}
-                                landId={acq.land.landId}
-                                landOwnerAddress={acq.land.owner.walletAddress}
-                                amount={acq.amount}
-                                paymentStatus={acq.paymentStatus}
-                                acquisitionStatus={acq.status}
-                                onComplete={fetchAcquisitions}
-                            />
+                        {(acq.status === 'APPROVED' || acq.status === 'COMPLETED') && acq.land.owner.walletAddress && acq.amount && (
+                            <div className="mb-6">
+                                <EscrowActions
+                                    acquisitionId={acq.id}
+                                    landId={acq.land.landId}
+                                    landOwnerAddress={acq.land.owner.walletAddress}
+                                    amount={acq.amount}
+                                    paymentStatus={acq.paymentStatus}
+                                    acquisitionStatus={acq.status}
+                                    onComplete={fetchAcquisitions}
+                                />
+                            </div>
                         )}
 
-                        <div className="mt-4">
-                            <p className="font-bold mb-2">Timeline</p>
+                        <div className="border-t border-slate-100 pt-6">
+                            <p className="font-bold text-slate-800 mb-4">Timeline</p>
                             <AcquisitionTimeline events={acq.timeline} />
                         </div>
                     </div>
                 ))}
 
                 {acquisitions.length === 0 && (
-                    <p className="text-gray-500">No acquisition requests yet</p>
+                    <div className="text-center py-12 bg-white rounded-xl border border-slate-200">
+                        <p className="text-slate-700 font-semibold font-medium">No acquisition requests yet</p>
+                    </div>
                 )}
             </div>
         </div>
