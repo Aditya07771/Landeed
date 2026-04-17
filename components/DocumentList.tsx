@@ -61,7 +61,7 @@ export default function DocumentList({ landId }: Props) {
         }
     }
 
-    if (loading) return <p>Loading documents...</p>
+    if (loading) return <p className='text-black'>Loading documents...</p>
 
     if (documents.length === 0) {
         return <p className="text-gray-500">No documents uploaded</p>

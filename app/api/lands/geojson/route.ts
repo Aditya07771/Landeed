@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import { GeoJSONFeatureCollection, normalizeToGeoJSON } from '@/lib/geojson'
+import { GeoJSONFeatureCollection, normalizeToGeoJSON, buildPlaceholderPolygon } from '@/lib/geojson'
 
 export async function GET(req: NextRequest) {
     try {
@@ -17,9 +17,7 @@ export async function GET(req: NextRequest) {
         const { searchParams } = new URL(req.url)
         const status = searchParams.get('status')
 
-        const where: any = {
-            coordinates: { not: null }
-        }
+        const where: any = {}
 
         if (status) {
             where.status = status
@@ -29,30 +27,34 @@ export async function GET(req: NextRequest) {
             where,
             include: {
                 owner: { select: { id: true, name: true } }
-            }
+            },
+            orderBy: { createdAt: 'asc' }
         })
 
-        const features = lands
-            .map((land) => {
-                const geometry = normalizeToGeoJSON(land.coordinates)
-                if (!geometry) return null
+        const features = lands.map((land, index) => {
+            let geometry = normalizeToGeoJSON(land.coordinates)
+            let geometryIsApproximate = false
+            if (!geometry) {
+                geometry = buildPlaceholderPolygon(land.landId, index, land.area)
+                geometryIsApproximate = true
+            }
 
-                return {
-                    type: 'Feature' as const,
-                    properties: {
-                        id: land.id,
-                        landId: land.landId,
-                        ownerId: land.ownerId,
-                        ownerName: land.owner.name,
-                        area: land.area,
-                        location: land.location,
-                        status: land.status,
-                        txHash: land.txHash
-                    },
-                    geometry
-                }
-            })
-            .filter(Boolean)
+            return {
+                type: 'Feature' as const,
+                properties: {
+                    id: land.id,
+                    landId: land.landId,
+                    ownerId: land.ownerId,
+                    ownerName: land.owner.name,
+                    area: land.area,
+                    location: land.location,
+                    status: land.status,
+                    txHash: land.txHash,
+                    geometryIsApproximate
+                },
+                geometry
+            }
+        })
 
         const geojson: GeoJSONFeatureCollection = {
             type: 'FeatureCollection',

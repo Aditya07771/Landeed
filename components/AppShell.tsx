@@ -8,7 +8,8 @@ import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { 
   LayoutDashboard, Map, Plus, Briefcase, 
-  ClipboardCheck, LogOut, ChevronRight, Shield, CheckCircle2, AlertTriangle, MonitorPlay
+  ClipboardCheck, LogOut, ChevronRight, Shield, CheckCircle2, AlertTriangle, MonitorPlay,
+  ShoppingBag, Receipt, Settings
 } from 'lucide-react'
 
 export function AppShell({ children }: { children: React.ReactNode }) {
@@ -33,6 +34,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     { href: '/authority/acquisitions', label: 'My Acquisitions', icon: Briefcase, roles: ['AUTHORITY'] },
     { href: '/verifier/pending', label: 'Verify Requests', icon: ClipboardCheck, roles: ['VERIFIER'] },
     { href: '/demo', label: 'Demo Mode', icon: MonitorPlay, roles: ['OWNER', 'AUTHORITY', 'VERIFIER'] },
+    { href: '/dispute', label: 'Disputes', icon: AlertTriangle, roles: ['OWNER', 'AUTHORITY', 'VERIFIER'] },
+    { href: '/marketplace', label: 'Marketplace', icon: ShoppingBag, roles: ['OWNER'] },
+    { href: '/tax', label: 'Tax Records', icon: Receipt, roles: ['OWNER', 'AUTHORITY'] },
+    { href: '/admin', label: 'Admin Panel', icon: Settings, roles: ['ADMIN'] }
   ].filter(item => item.roles.includes(session?.user?.role || ''))
 
   const navItems = [...baseNavItems]
@@ -118,7 +123,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         {/* Footer */}
         <div className="p-4 border-t border-slate-100 space-y-3 flex-shrink-0">
           <WalletConnect />
-          <button onClick={() => signOut()}
+          <button onClick={() => signOut({ callbackUrl: '/login' })}
             className="flex items-center gap-2 w-full px-3 py-2 text-sm text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
             <LogOut size={14} /> Sign Out
           </button>

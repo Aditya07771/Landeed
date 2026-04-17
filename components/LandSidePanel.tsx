@@ -17,6 +17,13 @@ interface LandDetails {
         name: string
         walletAddress: string | null
     } | null
+    histories?: {
+        id: string
+        action: string
+        metadata: unknown
+        createdAt: string
+        user: { id: string; name: string }
+    }[]
     acquisitionRequests: {
         id: string
         status: string
@@ -83,7 +90,7 @@ export default function LandSidePanel({ landId, onClose }: Props) {
                 <button onClick={onClose} className="text-2xl">&times;</button>
             </div>
 
-            {loading && <div className="p-4 text-gray-500">Loading...</div>}
+            {loading && <div className="p-4 text-black">Loading...</div>}
 
             {error && (
                 <div className="p-4 text-red-600 text-sm bg-red-50 m-4 rounded-lg">
@@ -125,6 +132,45 @@ export default function LandSidePanel({ landId, onClose }: Props) {
                         )}
                     </div>
 
+                    {land.histories && land.histories.length > 0 && (
+                        <>
+                            <hr />
+                            <div>
+                                <p className="text-sm text-gray-700 font-semibold mb-2">Land and ownership history</p>
+                                <ul className="text-sm space-y-2 list-disc pl-4">
+                                    {land.histories.map(h => (
+                                        <li key={h.id}>
+                                            <span className="font-medium text-black">{h.action}</span>
+                                            {' — '}
+                                            <span className="text-gray-600">
+                                                {new Date(h.createdAt).toLocaleString()}
+                                                {h.user?.name && (
+                                                    <span> ({h.user.name})</span>
+                                                )}
+                                            </span>
+                                            {(() => {
+                                                const raw =
+                                                    h.metadata == null
+                                                        ? ''
+                                                        : typeof h.metadata === 'string'
+                                                            ? h.metadata
+                                                            : JSON.stringify(h.metadata)
+                                                if (!raw || raw === '{}') return null
+                                                return (
+                                                    <pre className="text-xs bg-gray-50 p-2 mt-1 rounded overflow-x-auto whitespace-pre-wrap">
+                                                        {typeof h.metadata === 'string'
+                                                            ? h.metadata
+                                                            : JSON.stringify(h.metadata, null, 2)}
+                                                    </pre>
+                                                )
+                                            })()}
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </>
+                    )}
+
                     {land.txHash && (
                         <div>
                             <p className="text-sm text-gray-700 font-semibold">Registration Tx</p>
@@ -144,13 +190,13 @@ export default function LandSidePanel({ landId, onClose }: Props) {
                             <hr />
                             <div>
                                 <p className="text-sm text-gray-700 font-semibold">Acquiring Authority</p>
-                                <p>{latestAcquisition.authority?.name ?? 'N/A'}</p>
+                                <p className='text-gray-600'>{latestAcquisition.authority?.name ?? 'N/A'}</p>
                             </div>
 
                             {latestAcquisition.amount && (
                                 <div>
                                     <p className="text-sm text-gray-700 font-semibold">Compensation</p>
-                                    <p>{latestAcquisition.amount} MATIC</p>
+                                    <p className='text-gray-600'>{latestAcquisition.amount} MATIC</p>
                                 </div>
                             )}
 

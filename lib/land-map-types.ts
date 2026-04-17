@@ -12,6 +12,8 @@ export interface LandFeature {
         location: string
         status: 'AVAILABLE' | 'UNDER_ACQUISITION' | 'ACQUIRED' | string
         txHash: string | null
+        /** True when boundary was generated because stored coordinates were missing or invalid */
+        geometryIsApproximate?: boolean
     }
 }
 

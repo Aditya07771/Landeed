@@ -73,6 +73,10 @@ export async function GET(req: NextRequest) {
 
         if (session.user.role === 'AUTHORITY') {
             where.authorityId = session.user.id
+        } else if (session.user.role === 'VERIFIER') {
+            where.OR = [{ assignedVerifierId: session.user.id }, { assignedVerifierId: null }]
+        } else if (session.user.role === 'ADMIN') {
+            // ADMIN sees all, no filter needed for ownership
         }
 
         if (status) {

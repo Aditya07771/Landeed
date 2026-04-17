@@ -49,10 +49,55 @@ export const ESCROW_ABI = [
   "event FundsRefunded(string indexed landId, address indexed authority, uint256 amount, uint256 timestamp)"
 ] as const
 
+/** Ethers v6 resolves non-`0x`+40hex strings as ENS names; Mumbai has no ENS → cryptic UNSUPPORTED_OPERATION. */
+function envContractAddress(envName: string, value: string | undefined): string {
+    const raw = (value ?? '').trim()
+    if (!raw) {
+        throw new Error(`${envName} is not set. Add the deployed contract address to .env.local`)
+    }
+    if (!ethers.isAddress(raw)) {
+        throw new Error(
+            `${envName} must be a full 0x-prefixed address (40 hex digits). ` +
+                `Current value is invalid or a placeholder — that triggers ENS resolution and fails on Polygon Mumbai.`
+        )
+    }
+    return ethers.getAddress(raw)
+}
+
+let cachedContractAddresses: {
+    landRegistry: string
+    acquisition: string
+    escrow: string
+} | null = null
+
+export function getContractAddresses() {
+    if (!cachedContractAddresses) {
+        cachedContractAddresses = {
+            landRegistry: envContractAddress(
+                'NEXT_PUBLIC_LAND_REGISTRY_ADDRESS',
+                process.env.NEXT_PUBLIC_LAND_REGISTRY_ADDRESS
+            ),
+            acquisition: envContractAddress(
+                'NEXT_PUBLIC_ACQUISITION_ADDRESS',
+                process.env.NEXT_PUBLIC_ACQUISITION_ADDRESS
+            ),
+            escrow: envContractAddress('NEXT_PUBLIC_ESCROW_ADDRESS', process.env.NEXT_PUBLIC_ESCROW_ADDRESS)
+        }
+    }
+    return cachedContractAddresses
+}
+
+/** @deprecated Prefer getContractAddresses() — getters validate env on first use */
 export const CONTRACT_ADDRESSES = {
-  landRegistry: process.env.NEXT_PUBLIC_LAND_REGISTRY_ADDRESS || '',
-  acquisition: process.env.NEXT_PUBLIC_ACQUISITION_ADDRESS || '',
-  escrow: process.env.NEXT_PUBLIC_ESCROW_ADDRESS || ''
+    get landRegistry() {
+        return getContractAddresses().landRegistry
+    },
+    get acquisition() {
+        return getContractAddresses().acquisition
+    },
+    get escrow() {
+        return getContractAddresses().escrow
+    }
 }
 
 export async function getEscrowContract(withSigner = false) {

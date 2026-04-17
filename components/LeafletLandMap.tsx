@@ -62,10 +62,11 @@ interface GridCellProps {
     landId?: string
     ownerName?: string
     txHash?: string | null
+    geometryIsApproximate?: boolean
     onClick: () => void
 }
 
-function GridCell({ bounds, status, landId, ownerName, txHash, onClick }: GridCellProps) {
+function GridCell({ bounds, status, landId, ownerName, txHash, geometryIsApproximate, onClick }: GridCellProps) {
     const s = status ? STATUS_COLORS[status] : null
     const pathOptions = s
         ? { color: s.border, fillColor: s.fill, fillOpacity: 0.35, weight: 1 }
@@ -82,6 +83,9 @@ function GridCell({ bounds, status, landId, ownerName, txHash, onClick }: GridCe
                     <div className="text-xs leading-relaxed">
                         <p className="font-bold font-mono">{landId}</p>
                         <p className="text-slate-500">{ownerName}</p>
+                        {geometryIsApproximate && (
+                            <p className="text-amber-800">Approximate position</p>
+                        )}
                         {txHash && (
                             <p className="text-violet-600 font-mono">
                                 ⛓ {txHash.slice(0, 8)}…{txHash.slice(-4)}
@@ -146,6 +150,7 @@ function GridOverlay({ features, onCellClick, cellSize = 0.002 }: GridOverlayPro
                     landId={feat?.properties?.landId}
                     ownerName={feat?.properties?.ownerName}
                     txHash={feat?.properties?.txHash}
+                    geometryIsApproximate={feat?.properties?.geometryIsApproximate}
                     onClick={() => feat && onCellClick(feat.properties.id)}
                 />
             )
@@ -205,6 +210,7 @@ function GeoJSONLayer({ data, onFeatureClick }: GeoJSONLayerProps) {
         <strong style="font-family:monospace">${p.landId}</strong><br/>
         <span style="color:#64748b">${p.location}</span><br/>
         <span style="color:${s.border};font-weight:600">${s.label}</span>
+        ${p.geometryIsApproximate ? `<br/><span style="color:#b45309;font-size:11px">Approximate position (no parcel boundary stored)</span>` : ''}
         ${p.txHash ? `<br/><span style="color:#7c3aed;font-family:monospace;font-size:10px">⛓ ${p.txHash.slice(0, 10)}…</span>` : ''}
       </div>`,
             { sticky: true, opacity: 0.97 }

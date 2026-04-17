@@ -17,6 +17,7 @@
     "@tanstack/react-query": "^5.28.4",
     "@tanstack/react-table": "^8.21.3",
     "@turf/turf": "^7.3.4",
+    "@types/qrcode": "^1.5.6",
     "@web3modal/wagmi": "^5.1.11",
     "bcryptjs": "^2.4.3",
     "clsx": "^2.1.1",
@@ -28,6 +29,7 @@
     "nanoid": "^5.0.0",
     "next": "14.2.5",
     "next-auth": "^4.24.0",
+    "qrcode": "^1.5.4",
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-hot-toast": "^2.6.0",
@@ -50,6 +52,10 @@
     "postcss": "^8.4.35",
     "prisma": "^5.10.2",
     "tailwindcss": "^3.4.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5.3.3"
+  },
+  "prisma": {
+    "seed": "ts-node --transpile-only --compiler-options {\"module\":\"CommonJS\",\"moduleResolution\":\"node\"} prisma/seed.ts"
   }
 }

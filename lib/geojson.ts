@@ -25,10 +25,23 @@ export interface GeoJSONFeatureCollection {
     features: GeoJSONFeature[]
 }
 
+function parseJsonIfString(value: unknown): unknown {
+    if (typeof value !== 'string') return value
+    const t = value.trim()
+    if (!t.startsWith('[') && !t.startsWith('{')) return value
+    try {
+        return JSON.parse(value)
+    } catch {
+        return value
+    }
+}
+
 export function validateGeoJSON(coords: any): boolean {
     if (!coords) return false
 
-    if (coords.type === 'Polygon' && Array.isArray(coords.coordinates)) {
+    coords = parseJsonIfString(coords)
+
+    if (coords && typeof coords === 'object' && coords.type === 'Polygon' && Array.isArray(coords.coordinates)) {
         return coords.coordinates.every((ring: any) =>
             Array.isArray(ring) &&
             ring.every((point: any) =>
@@ -54,10 +67,12 @@ export function validateGeoJSON(coords: any): boolean {
 }
 
 export function normalizeToGeoJSON(coords: any): GeoJSONPolygon | null {
-    if (!coords) return null
+    if (coords == null) return null
+
+    coords = parseJsonIfString(coords)
 
     // Already proper GeoJSON Polygon
-    if (coords.type === 'Polygon' && Array.isArray(coords.coordinates)) {
+    if (coords && typeof coords === 'object' && coords.type === 'Polygon' && Array.isArray(coords.coordinates)) {
         return coords as GeoJSONPolygon
     }
 
@@ -80,6 +95,38 @@ export function normalizeToGeoJSON(coords: any): GeoJSONPolygon | null {
     }
 
     return null
+}
+
+/** Stable 0..1 from string — used for deterministic placeholder positions on the map */
+export function stableHash01(input: string): number {
+    let h = 2166136261
+    for (let i = 0; i < input.length; i++) {
+        h ^= input.charCodeAt(i)
+        h = Math.imul(h, 16777619)
+    }
+    return (h >>> 0) / 4294967296
+}
+
+/**
+ * When a land has no usable boundary geometry, place a small square so it still appears on the map.
+ * Position is stable from landId + index; size scales slightly with area (m²).
+ */
+export function buildPlaceholderPolygon(landId: string, index: number, areaM2: number): GeoJSONPolygon {
+    const seed = `${landId}#${index}`
+    const u1 = stableHash01(seed + ':lat')
+    const u2 = stableHash01(seed + ':lng')
+    const lat = 20.5 + u1 * 0.22
+    const lng = 72.5 + u2 * 0.35
+    const sideM = Math.max(40, Math.min(500, Math.sqrt(Math.max(areaM2, 1))))
+    const halfDeg = sideM / 2 / 111320
+    const ring: number[][] = [
+        [lng - halfDeg, lat - halfDeg],
+        [lng + halfDeg, lat - halfDeg],
+        [lng + halfDeg, lat + halfDeg],
+        [lng - halfDeg, lat + halfDeg],
+        [lng - halfDeg, lat - halfDeg],
+    ]
+    return { type: 'Polygon', coordinates: [ring] }
 }
 
 export function getPolygonCenter(coords: number[][][]): [number, number] {

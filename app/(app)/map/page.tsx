@@ -88,6 +88,7 @@ export default function MapPage() {
                             <option value="AVAILABLE">Available</option>
                             <option value="UNDER_ACQUISITION">Under Acquisition</option>
                             <option value="ACQUIRED">Acquired</option>
+                            <option value="DISPUTED">Disputed</option>
                         </select>
                     </div>
 

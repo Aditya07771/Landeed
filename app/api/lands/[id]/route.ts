@@ -28,6 +28,12 @@ export async function GET(
             include: {
                 owner: { select: { id: true, name: true, email: true, walletAddress: true } },
                 documents: true,
+                histories: {
+                    orderBy: { createdAt: 'desc' },
+                    include: {
+                        user: { select: { id: true, name: true } }
+                    }
+                },
                 acquisitionRequests: {
                     include: {
                         authority: { select: { id: true, name: true, walletAddress: true } },

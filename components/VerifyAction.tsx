@@ -82,14 +82,14 @@ export default function VerifyAction({ acquisitionId, landId, status, onComplete
 
     return (
         <div className="space-y-3 p-4 border rounded">
-            <h4 className="font-bold">Verification Action</h4>
+            <h4 className="font-bold text-slate-900">Verification Action</h4>
 
             <textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Verification notes / Rejection reason"
                 rows={3}
-                className="w-full p-2 border rounded"
+                className="w-full p-2 border rounded text-slate-900"
             />
 
             {error && <p className="text-red-500 text-sm">{error}</p>}

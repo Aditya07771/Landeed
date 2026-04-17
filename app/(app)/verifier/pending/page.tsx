@@ -22,6 +22,7 @@ interface Acquisition {
         owner: { name: string; walletAddress: string | null }
     }
     authority: { name: string }
+    assignedVerifierId?: string | null
 }
 
 export default function VerifierPendingPage() {
@@ -53,13 +54,13 @@ export default function VerifierPendingPage() {
     }
 
     if (status === 'loading' || loading) {
-        return <div className="p-8">Loading...</div>
+        return <div className="p-8 text-slate-900">Loading...</div>
     }
 
     return (
         <div className="p-8">
             <div className="flex justify-between items-center mb-8">
-                <h1 className="text-2xl font-bold">Pending Verifications</h1>
+                <h1 className="text-2xl font-bold text-slate-900">Pending Verifications</h1>
                 <div className="flex gap-4 items-center">
                     <a href="/dashboard" className="text-blue-500">Dashboard</a>
                     <WalletConnect />
@@ -68,59 +69,66 @@ export default function VerifierPendingPage() {
 
             <div className="grid grid-cols-3 gap-8">
                 <div className="col-span-1 space-y-2">
-                    <h2 className="font-bold mb-4">Requests ({acquisitions.length})</h2>
+                    <h2 className="font-bold mb-4 text-slate-900">Requests ({acquisitions.length})</h2>
                     {acquisitions.map(acq => (
                         <div
                             key={acq.id}
                             onClick={() => setSelected(acq)}
-                            className={`p-3 border rounded cursor-pointer ${selected?.id === acq.id ? 'border-blue-500 bg-blue-50' : ''}`}
+                            className={`p-3 border rounded cursor-pointer ${selected?.id === acq.id ? 'border-blue-500 bg-blue-50' : 'bg-white'}`}
                         >
-                            <p className="font-medium">{acq.land.landId}</p>
-                            <p className="text-sm text-gray-500">{acq.land.location}</p>
-                            <p className="text-sm">By: {acq.authority.name}</p>
+                            <p className="font-medium text-slate-900">
+                                {acq.land.landId}
+                                {acq.assignedVerifierId === session?.user?.id && (
+                                    <span className="ml-2 text-xs bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded">Assigned to you</span>
+                                )}
+                            </p>
+                            <p className="text-sm text-slate-500">{acq.land.location}</p>
+                            <p className="text-sm text-slate-700">By: {acq.authority.name}</p>
                         </div>
                     ))}
 
                     {acquisitions.length === 0 && (
-                        <p className="text-gray-500">No pending verifications</p>
+                        <p className="text-slate-500">No pending verifications</p>
                     )}
                 </div>
 
                 <div className="col-span-2">
                     {selected ? (
                         <div className="space-y-6">
-                            <div className="p-4 border rounded">
-                                <h2 className="text-xl font-bold mb-4">{selected.land.landId}</h2>
+                            <div className="p-4 border rounded bg-white">
+                                <h2 className="text-xl font-bold mb-4 text-slate-900">{selected.land.landId}</h2>
 
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <p className="text-sm text-gray-500">Location</p>
-                                        <p>{selected.land.location}</p>
+                                        <p className="text-sm text-slate-500">Location</p>
+                                        <p className="text-slate-800">{selected.land.location}</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-500">Area</p>
-                                        <p>{selected.land.area} sq.m</p>
+                                        <p className="text-sm text-slate-500">Area</p>
+                                        <p className="text-slate-800">{selected.land.area} sq.m</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-500">Owner</p>
-                                        <p>{selected.land.owner.name}</p>
+                                        <p className="text-sm text-slate-500">Owner</p>
+                                        <p className="text-slate-800">{selected.land.owner.name}</p>
                                     </div>
                                     <div>
-                                        <p className="text-sm text-gray-500">Requesting Authority</p>
-                                        <p>{selected.authority.name}</p>
+                                        <p className="text-sm text-slate-500">Requesting Authority</p>
+                                        <p className="text-slate-800">{selected.authority.name}</p>
                                     </div>
                                     {selected.amount && (
                                         <div>
-                                            <p className="text-sm text-gray-500">Compensation</p>
-                                            <p>{selected.amount} MATIC</p>
+                                            <p className="text-sm text-slate-500">Compensation</p>
+                                            <p className="text-slate-800">{selected.amount} MATIC</p>
                                         </div>
                                     )}
                                 </div>
                             </div>
 
-                            <div className="p-4 border rounded">
-                                <h3 className="font-bold mb-4">Documents</h3>
-                                <DocumentList landId={selected.land.id} />
+                            <div className="p-4 border rounded bg-white">
+                                <h3 className="font-bold mb-4 text-slate-900">Documents</h3>
+                                <div className="text-slate-900">
+                                    <DocumentList landId={selected.land.id} />
+                                </div>
                             </div>
 
                             <VerifyAction
@@ -134,7 +142,7 @@ export default function VerifierPendingPage() {
                             />
                         </div>
                     ) : (
-                        <div className="flex items-center justify-center h-64 text-gray-500">
+                        <div className="flex items-center justify-center h-64 text-slate-500">
                             Select a request to review
                         </div>
                     )}

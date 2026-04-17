@@ -30,16 +30,6 @@ interface Land {
     createdAt: string
 }
 
-// Mock chart data
-const chartData = [
-    { name: 'Jan', lands: 12, acquisitions: 2 },
-    { name: 'Feb', lands: 19, acquisitions: 5 },
-    { name: 'Mar', lands: 27, acquisitions: 8 },
-    { name: 'Apr', lands: 35, acquisitions: 12 },
-    { name: 'May', lands: 42, acquisitions: 15 },
-    { name: 'Jun', lands: 50, acquisitions: 22 },
-]
-
 export default function DashboardPage() {
 
     const prisma = new PrismaClient()
@@ -47,10 +37,23 @@ export default function DashboardPage() {
     const [lands, setLands] = useState<Land[]>([])
     const [sorting, setSorting] = useState<SortingState>([])
     const [globalFilter, setGlobalFilter] = useState('')
-
+    const [chartData, setChartData] = useState<any[]>([])
 
     useEffect(() => {
         fetchLands()
+        fetch('/api/analytics').then(res => res.json()).then(data => {
+            if (!data.recentRegistrations || !data.recentAcquisitions) return;
+            const dates = Array.from(new Set([
+                ...Object.keys(data.recentRegistrations || {}),
+                ...Object.keys(data.recentAcquisitions || {})
+            ])).sort();
+            const mappedData = dates.map(d => ({
+                name: d,
+                lands: data.recentRegistrations[d] || 0,
+                acquisitions: data.recentAcquisitions[d] || 0
+            }));
+            setChartData(mappedData);
+        }).catch(err => console.error(err));
     }, [])
 
     async function fetchLands() {

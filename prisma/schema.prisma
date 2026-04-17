@@ -8,59 +8,81 @@ datasource db {
 }
 
 model User {
-  id                  String               @id @default(cuid())
-  name                String
-  email               String               @unique
-  password            String
-  role                Role                 @default(OWNER)
-  walletAddress       String?
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
-  aadharHash          String?
-  isKycVerified       Boolean              @default(false)
-  kycVerifiedAt       DateTime?
-  panHash             String?
-  acquisitionRequests AcquisitionRequest[] @relation("AuthorityRequests")
-  verifications       AcquisitionRequest[] @relation("VerifierActions")
-  lands               Land[]
-  landHistories       LandHistory[]
-  notifications       Notification[]
+  id                    String               @id @default(cuid())
+  name                  String
+  email                 String               @unique
+  password              String
+  role                  Role                 @default(OWNER)
+  walletAddress         String?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  aadharHash            String?
+  isKycVerified         Boolean              @default(false)
+  kycVerifiedAt         DateTime?
+  panHash               String?
+  appealsFiled          AcquisitionAppeal[]  @relation("AppealsFiled")
+  appealsReviewed       AcquisitionAppeal[]  @relation("AppealsReviewed")
+  assignedVerifications AcquisitionRequest[] @relation("AssignedVerifications")
+  acquisitionRequests   AcquisitionRequest[] @relation("AuthorityRequests")
+  verifications         AcquisitionRequest[] @relation("VerifierActions")
+  disputesAssigned      Dispute[]            @relation("DisputesAssigned")
+  disputesFiled         Dispute[]            @relation("DisputesFiled")
+  evidenceUploaded      DisputeEvidence[]
+  lands                 Land[]
+  landHistories         LandHistory[]
+  listings              LandListing[]        @relation("LandListings")
+  offers                LandOffer[]          @relation("LandOffers")
+  subdivisions          LandSubdivision[]
+  valuations            LandValuation[]
+  liensAsBorrower       MortgageLien[]       @relation("LienBorrower")
+  liensAsLender         MortgageLien[]       @relation("LienLender")
+  notifications         Notification[]
 }
 
 model Land {
-  id                  String               @id @default(cuid())
-  landId              String               @unique
-  ownerId             String
-  area                Float
-  location            String
-  coordinates         Json?
-  status              LandStatus           @default(AVAILABLE)
-  txHash              String?
-  docHash             String?
-  createdAt           DateTime             @default(now())
-  updatedAt           DateTime             @updatedAt
-  acquisitionRequests AcquisitionRequest[]
-  documents           Document[]
-  owner               User                 @relation(fields: [ownerId], references: [id])
-  histories           LandHistory[]
+  id                   String               @id @default(cuid())
+  landId               String               @unique
+  ownerId              String
+  area                 Float
+  location             String
+  coordinates          Json?
+  status               LandStatus           @default(AVAILABLE)
+  txHash               String?
+  docHash              String?
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  acquisitionRequests  AcquisitionRequest[]
+  disputes             Dispute[]
+  documents            Document[]
+  owner                User                 @relation(fields: [ownerId], references: [id])
+  histories            LandHistory[]
+  listing              LandListing?
+  subdivisionsAsChild  LandSubdivision[]    @relation("SubdivisionChild")
+  subdivisionsAsParent LandSubdivision[]    @relation("SubdivisionParent")
+  valuations           LandValuation[]
+  liens                MortgageLien[]
+  taxRecords           TaxRecord[]
 }
 
 model AcquisitionRequest {
-  id            String                @id @default(cuid())
-  landId        String
-  authorityId   String
-  verifierId    String?
-  status        String                @default("PENDING")
-  paymentStatus PaymentStatus         @default(PENDING)
-  amount        Float?
-  verifierNote  String?
-  txHash        String?
-  createdAt     DateTime              @default(now())
-  updatedAt     DateTime              @updatedAt
-  authority     User                  @relation("AuthorityRequests", fields: [authorityId], references: [id])
-  land          Land                  @relation(fields: [landId], references: [id])
-  verifier      User?                 @relation("VerifierActions", fields: [verifierId], references: [id])
-  timeline      AcquisitionTimeline[]
+  id                 String                @id @default(cuid())
+  landId             String
+  authorityId        String
+  verifierId         String?
+  status             String                @default("PENDING")
+  paymentStatus      PaymentStatus         @default(PENDING)
+  amount             Float?
+  verifierNote       String?
+  txHash             String?
+  createdAt          DateTime              @default(now())
+  updatedAt          DateTime              @updatedAt
+  assignedVerifierId String?
+  appeal             AcquisitionAppeal?
+  assignedVerifier   User?                 @relation("AssignedVerifications", fields: [assignedVerifierId], references: [id])
+  authority          User                  @relation("AuthorityRequests", fields: [authorityId], references: [id])
+  land               Land                  @relation(fields: [landId], references: [id])
+  verifier           User?                 @relation("VerifierActions", fields: [verifierId], references: [id])
+  timeline           AcquisitionTimeline[]
 }
 
 model AcquisitionTimeline {
@@ -108,10 +130,160 @@ model Notification {
   user      User     @relation(fields: [userId], references: [id])
 }
 
+model Dispute {
+  id               String            @id @default(cuid())
+  landId           String
+  filedById        String
+  assignedTo       String?
+  status           DisputeStatus     @default(OPEN)
+  category         DisputeCategory
+  description      String
+  resolution       String?
+  resolvedAt       DateTime?
+  txHash           String?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  assignedVerifier User?             @relation("DisputesAssigned", fields: [assignedTo], references: [id])
+  filedBy          User              @relation("DisputesFiled", fields: [filedById], references: [id])
+  land             Land              @relation(fields: [landId], references: [id])
+  evidence         DisputeEvidence[]
+  timeline         DisputeTimeline[]
+}
+
+model DisputeEvidence {
+  id         String   @id @default(cuid())
+  disputeId  String
+  uploadedBy String
+  fileName   String
+  ipfsCid    String
+  hash       String
+  createdAt  DateTime @default(now())
+  dispute    Dispute  @relation(fields: [disputeId], references: [id])
+  uploader   User     @relation(fields: [uploadedBy], references: [id])
+}
+
+model DisputeTimeline {
+  id        String   @id @default(cuid())
+  disputeId String
+  action    String
+  note      String?
+  txHash    String?
+  createdAt DateTime @default(now())
+  dispute   Dispute  @relation(fields: [disputeId], references: [id])
+}
+
+model LandListing {
+  id          String        @id @default(cuid())
+  landId      String        @unique
+  sellerId    String
+  askingPrice Float
+  description String?
+  status      ListingStatus @default(ACTIVE)
+  expiresAt   DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  land        Land          @relation(fields: [landId], references: [id])
+  seller      User          @relation("LandListings", fields: [sellerId], references: [id])
+  offers      LandOffer[]
+}
+
+model LandOffer {
+  id          String      @id @default(cuid())
+  listingId   String
+  buyerId     String
+  offerAmount Float
+  status      OfferStatus @default(PENDING)
+  message     String?
+  txHash      String?
+  createdAt   DateTime    @default(now())
+  buyer       User        @relation("LandOffers", fields: [buyerId], references: [id])
+  listing     LandListing @relation(fields: [listingId], references: [id])
+}
+
+model MortgageLien {
+  id              String     @id @default(cuid())
+  landId          String
+  lenderId        String
+  borrowerId      String
+  principalAmount Float
+  interestRate    Float
+  startDate       DateTime
+  endDate         DateTime?
+  status          LienStatus @default(ACTIVE)
+  txHash          String?
+  notes           String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  borrower        User       @relation("LienBorrower", fields: [borrowerId], references: [id])
+  land            Land       @relation(fields: [landId], references: [id])
+  lender          User       @relation("LienLender", fields: [lenderId], references: [id])
+}
+
+model LandSubdivision {
+  id           String   @id @default(cuid())
+  parentLandId String
+  childLandId  String
+  createdBy    String
+  txHash       String?
+  createdAt    DateTime @default(now())
+  childLand    Land     @relation("SubdivisionChild", fields: [childLandId], references: [id])
+  subdivider   User     @relation(fields: [createdBy], references: [id])
+  parentLand   Land     @relation("SubdivisionParent", fields: [parentLandId], references: [id])
+}
+
+model TaxRecord {
+  id            String    @id @default(cuid())
+  landId        String
+  taxYear       Int
+  assessedValue Float
+  taxAmount     Float
+  paidAmount    Float     @default(0)
+  dueDate       DateTime
+  paidAt        DateTime?
+  status        TaxStatus @default(PENDING)
+  receiptNumber String?
+  notes         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  land          Land      @relation(fields: [landId], references: [id])
+}
+
+model AcquisitionAppeal {
+  id             String             @id @default(cuid())
+  acquisitionId  String             @unique
+  appellantId    String
+  reason         String
+  supportingNote String?
+  status         AppealStatus       @default(PENDING)
+  reviewedBy     String?
+  reviewNote     String?
+  reviewedAt     DateTime?
+  txHash         String?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  acquisition    AcquisitionRequest @relation(fields: [acquisitionId], references: [id])
+  appellant      User               @relation("AppealsFiled", fields: [appellantId], references: [id])
+  reviewer       User?              @relation("AppealsReviewed", fields: [reviewedBy], references: [id])
+}
+
+model LandValuation {
+  id           String   @id @default(cuid())
+  landId       String
+  valuedBy     String
+  valuationAmt Float
+  method       String
+  notes        String?
+  valuedAt     DateTime @default(now())
+  createdAt    DateTime @default(now())
+  land         Land     @relation(fields: [landId], references: [id])
+  valuator     User     @relation(fields: [valuedBy], references: [id])
+}
+
 enum Role {
   OWNER
   AUTHORITY
   VERIFIER
+  ADMIN
 }
 
 enum LandStatus {
@@ -127,4 +299,55 @@ enum PaymentStatus {
   RELEASED
   CONFIRMING
   REFUNDED
+}
+
+enum DisputeStatus {
+  OPEN
+  UNDER_REVIEW
+  RESOLVED
+  DISMISSED
+}
+
+enum DisputeCategory {
+  OWNERSHIP_CONFLICT
+  BOUNDARY_DISPUTE
+  FRAUDULENT_REGISTRATION
+  ENCUMBRANCE
+  OTHER
+}
+
+enum ListingStatus {
+  ACTIVE
+  SOLD
+  CANCELLED
+  EXPIRED
+}
+
+enum OfferStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
+  COMPLETED
+}
+
+enum LienStatus {
+  ACTIVE
+  DISCHARGED
+  DEFAULTED
+  FORECLOSED
+}
+
+enum TaxStatus {
+  PENDING
+  PAID
+  OVERDUE
+  WAIVED
+}
+
+enum AppealStatus {
+  PENDING
+  UNDER_REVIEW
+  UPHELD
+  REJECTED_FINAL
 }

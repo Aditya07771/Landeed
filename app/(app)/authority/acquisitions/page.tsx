@@ -24,6 +24,7 @@ interface Acquisition {
     }
     verifier: { name: string } | null
     verifierNote: string | null
+    appeal?: { id: string; status: string }
     timeline: { id: string; action: string; txHash: string | null; createdAt: string }[]
 }
 
@@ -35,6 +36,8 @@ export default function AuthorityAcquisitionsPage() {
     const [loading, setLoading] = useState(true)
     const [actionLoading, setActionLoading] = useState<string | null>(null)
     const [error, setError] = useState('')
+    const [verifiers, setVerifiers] = useState<any[]>([])
+    const [appealForms, setAppealForms] = useState<Record<string, { reason: string; note: string }>>({})
 
     useEffect(() => {
         if (status === 'unauthenticated') {
@@ -53,8 +56,20 @@ export default function AuthorityAcquisitionsPage() {
     async function fetchAcquisitions() {
         const res = await fetch('/api/acquisition')
         const data = await res.json()
-        setAcquisitions(data)
+
+        // Fetch appeals for these acquisitions manually if not included by default api
+        const appealRes = await fetch('/api/appeal')
+        const appeals = await appealRes.json()
+
+        const mappedData = data.map((acq: any) => {
+            const appeal = appeals.find((a: any) => a.acquisitionId === acq.id)
+            return { ...acq, appeal }
+        })
+
+        setAcquisitions(mappedData)
         setLoading(false)
+
+        fetch('/api/user?role=VERIFIER').then(r => r.json()).then(setVerifiers)
     }
 
     async function handleApprove(acq: Acquisition) {
@@ -133,8 +148,39 @@ export default function AuthorityAcquisitionsPage() {
         }
     }
 
+    async function handleAssignVerifier(acqId: string, verifierId: string) {
+        if (!verifierId) return
+        setActionLoading(acqId)
+        try {
+            await fetch(`/api/acquisition/${acqId}/assign-verifier`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ verifierId })
+            })
+            fetchAcquisitions()
+        } finally {
+            setActionLoading(null)
+        }
+    }
+
+    async function handleFileAppeal(e: React.FormEvent, acqId: string) {
+        e.preventDefault()
+        setActionLoading(acqId)
+        try {
+            const form = appealForms[acqId] || { reason: '', note: '' }
+            await fetch('/api/appeal', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ acquisitionId: acqId, reason: form.reason, supportingNote: form.note })
+            })
+            fetchAcquisitions()
+        } finally {
+            setActionLoading(null)
+        }
+    }
+
     if (status === 'loading' || loading) {
-        return <div className="p-8">Loading...</div>
+        return <div className="p-8 text-black">Loading...</div>
     }
 
     const statusColors: Record<string, string> = {
@@ -200,6 +246,49 @@ export default function AuthorityAcquisitionsPage() {
                         )}
 
                         <div className="flex flex-wrap gap-4 mb-6">
+                            {acq.status === 'PENDING' && (
+                                <div className="flex items-center gap-2">
+                                    <select
+                                        onChange={(e) => handleAssignVerifier(acq.id, e.target.value)}
+                                        disabled={actionLoading === acq.id}
+                                        className="border border-slate-300 rounded px-2 py-1"
+                                    >
+                                        <option value="">Assign Verifier</option>
+                                        {verifiers.map(v => (
+                                            <option key={v.id} value={v.id}>{v.name}</option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
+
+                            {acq.status === 'REJECTED' && !acq.appeal && (
+                                <form onSubmit={(e) => handleFileAppeal(e, acq.id)} className="flex flex-col gap-2 p-4 bg-red-50 border border-red-100 rounded-lg w-full">
+                                    <p className="font-bold text-red-900">File Appeal</p>
+                                    <textarea
+                                        placeholder="Reason"
+                                        required
+                                        className="border border-slate-300 rounded p-2"
+                                        value={appealForms[acq.id]?.reason || ''}
+                                        onChange={(e) => setAppealForms({ ...appealForms, [acq.id]: { ...appealForms[acq.id], reason: e.target.value } })}
+                                    />
+                                    <textarea
+                                        placeholder="Supporting Note"
+                                        className="border border-slate-300 rounded p-2"
+                                        value={appealForms[acq.id]?.note || ''}
+                                        onChange={(e) => setAppealForms({ ...appealForms, [acq.id]: { ...appealForms[acq.id], note: e.target.value } })}
+                                    />
+                                    <button disabled={actionLoading === acq.id} className="bg-red-600 text-white px-4 py-2 rounded max-w-max">
+                                        Submit Appeal
+                                    </button>
+                                </form>
+                            )}
+
+                            {acq.appeal && (
+                                <div className="w-full p-4 bg-blue-50 border border-blue-100 rounded-lg">
+                                    <p className="font-bold text-blue-900">Appeal Status: {acq.appeal.status}</p>
+                                </div>
+                            )}
+
                             {acq.status === 'VERIFIED' && (
                                 <button
                                     onClick={() => handleApprove(acq)}
